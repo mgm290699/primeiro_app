@@ -7,7 +7,7 @@ class abranapp extends StatelessWidget{
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-      body: FormularioTransferencia(),
+      body: ListaTransferencias(),
     ),
   );
   }
@@ -40,20 +40,22 @@ void _criaTransferencia(_controladorCampoNumeroConta, _controladorCampoValor, Bu
     int.tryParse(_controladorCampoNumeroConta.text);
   final double? valor = 
     double.tryParse(_controladorCampoValor.text);
-  if(numeroConta != null && valor != null){    
+  
+  if (numeroConta != null && valor != null) {
+    final transferenciaCriada = Transferencia(valor, numeroConta);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Transferência feita com sucesso'),
       ),
     );
-  } 
-  else {
+    Navigator.pop(context, transferenciaCriada); 
+  } else {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Não foi possivel realizar a transferencia'),
-        )
+        content: Text('Não foi possível realizar a transferência'),
+      )
     );
-    }
+  }
 }
 
 
@@ -100,7 +102,24 @@ class ListaTransferencias extends StatelessWidget {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            final Future<Transferencia?> future = Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return FormularioTransferencia();
+                },                
+              ),
+            );
+
+            future.then((transferenciaRecebida) {
+              if (transferenciaRecebida != null) {
+                debugPrint('Transferência recebida: $transferenciaRecebida');
+              } else {
+                debugPrint('O formulário foi cancelado ou inválido.');
+              }
+            });
+          },
           child: Icon(Icons.add),
     ),
   );
